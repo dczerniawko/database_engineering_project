@@ -1,0 +1,43 @@
+Requirements:
+* Docker (tested on version 20.10.11)
+* Docker Compose (tested on version 1.25.0)
+
+Building enviroment:
+Whole environment is defined in docker-compose.yml.
+I created required setup-environment.sh script, which builds docker-compose.yml and runs MySQL database generator (amount is set to 100000 records).
+To generate bigger database, you have to change populate_db.py argument in setup-environment.sh from 100000 to some other number.
+
+Running migration:
+To migrate data from MySQL database to PostgreSQL, you have to run migrate.sh script, which runs pgloader in tools container.
+
+Removing environment:
+To remove whole environment within its data, run: docker-compose down
+
+Migration time:
+For database with 10 000 000 records, migration took less than 30 seconds:
+
+$ docker-compose run tools pgloader mysql://user:password@mysql/database postgresql://postgres:password@postgres/database
+2022-01-03T17:16:07.025000Z LOG pgloader version "3.6.2"
+2022-01-03T17:16:07.099000Z LOG Migrating from #<MYSQL-CONNECTION mysql://user@mysql:3306/database {1005420E73}>
+2022-01-03T17:16:07.099000Z LOG Migrating into #<PGSQL-CONNECTION pgsql://postgres@postgres:5432/database {100557B493}>
+2022-01-03T17:16:07.873000Z LOG report summary reset
+             table name     errors       rows      bytes      total time
+-----------------------  ---------  ---------  ---------  --------------
+        fetch meta data          0          1                     0.112s
+         Create Schemas          0          0                     0.002s
+       Create SQL Types          0          0                     0.009s
+          Create tables          0          2                     0.022s
+         Set Table OIDs          0          1                     0.009s
+-----------------------  ---------  ---------  ---------  --------------
+        database."user"          0     100000     5.6 MB          0.490s
+-----------------------  ---------  ---------  ---------  --------------
+COPY Threads Completion          0          4                     0.488s
+ Index Build Completion          0          0                     0.000s
+        Reset Sequences          0          0                     0.018s
+           Primary Keys          0          0                     0.000s
+    Create Foreign Keys          0          0                     0.000s
+        Create Triggers          0          0                     0.001s
+        Set Search Path          0          1                     0.002s
+       Install Comments          0          0                     0.000s
+-----------------------  ---------  ---------  ---------  --------------
+      Total import time          ✓     100000     5.6 MB          0.509s
