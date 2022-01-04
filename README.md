@@ -1,2 +1,2 @@
 # database_engineering_project
-Learn how to be a good database engineer
+Exercise about migrating data from MySQL to PostgreSQL.
